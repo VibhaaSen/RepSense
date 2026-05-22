@@ -1,0 +1,63 @@
+# 🏋️ RepSense — Smart Squat Accountability Wearable
+
+**Status:** In progress  
+**Owners:** Vibhaa Senthilkumaravelan  
+
+---
+
+## 📋 Project Overview
+Traditional wearable fitness trackers are heavily optimized for cardiovascular activities, step counting, and generalized movement mapping. However, they fundamentally fail when applied to barbell strength training, where tracking exact biomechanical ranges of motion is critical. In exercises like the squat, partial or shallow repetitions are frequently miscounted as complete sets by standard wearables, leading to a complete lack of training accountability, inconsistent progress tracking, and potential injury risks due to poor form habits.
+
+**RepSense** is a dedicated, thigh-mounted intelligent wearable system engineered to bring absolute accountability and precision to lower-body strength training. By utilizing a 6-axis Inertial Measurement Unit (IMU) positioned directly on the femur, the device tracks real-time angular velocity and spatial orientation through specialized sensor-fusion algorithms.
+
+The onboard firmware processes these data streams through a robust state machine to map the distinct phases of a movement cycle: identifying the initial eccentric descent, validating when the thigh passes the true powerlifting depth threshold (breaking parallel), and confirming a successful return to the concentric standing position. To maximize real-world utility in a loud gym environment, the hardware integrates a low-side MOSFET haptic driver circuit that delivers instantaneous vibration feedback the exact millisecond a valid repetition depth is achieved, giving the lifter an immediate tactile cue to ascend.
+
+---
+
+## 🎯 Objectives
+
+### Project Objectives & Outcomes
+* **PCB Design Completion:** Translate the hardware schematic into a compact, dual-layer PCB layout using KiCad, ensuring optimal component placement for the microcontroller, IMU, OLED interface, and haptic motor.
+* **Inductive Noise Isolation:** Successfully isolate high-current haptic motor transients from sensitive low-voltage logic lines by employing a dedicated N-channel MOSFET low-side switching network.
+* **Signal & Power Integrity:** Implement localized voltage rails ($+3\text{V}3$ and $+5\text{V}$) backed by a continuous bottom copper ground plane (`B.Cu`) to eliminate electromagnetic interference (EMI) and signal return loops.
+* **Manufacturability Verification:** Clear all physical board boundary constraints, edge clearances, and track clearance rules within the layout engine to ensure a production-ready design.
+
+### Key Success Metrics
+* **Zero DRC Faults:** Achieve a final layout state with **0 errors and 0 warnings** under the KiCad Design Rules Checker (DRC).
+* **Electrical Isolation Baseline:** Confirm perfect unpowered circuit safety (cold testing showing infinite resistance between power rails and Ground via a multimeter).
+* **Haptic Cue Latency:** Achieve real-world haptic feedback execution within **$\le 50\text{ms}$** of the thigh angle crossing the predefined physical squat depth threshold.
+* **Sensor Fusion Accuracy:** Maintain an absolute angle estimation drift of **$< 2^{\circ}$** across a continuous 5-repetition training set compared to video analysis control benchmarks.
+
+---
+
+## ⚡ Strategy
+
+### Approach
+To successfully achieve the project objectives within the development timeframe, the execution strategy is broken down into four progressive, linear phases. This structured approach ensures that hardware bugs are caught early before ordering fabrication, and software complexity is built on top of verified electrical baselines.
+
+#### Phase 1: Schematic Capture & Footprint Auditing
+* **Action Items:** Finalize the net connections for the low-side MOSFET driver, flyback diode, and current-limiting gate resistor. Verify that the physical pin pitches of the microcontroller female headers, IMU, and OLED display footprints match the physical components exactly.
+* **Feasibility Check:** Completed. Form factors are standardized on a $2.54\text{mm}$ pitch for simple hand-soldering and testing.
+
+#### Phase 2: PCB Layout & Design Rule Verification
+* **Action Items:** Route power rails ($+5\text{V}$, $+3\text{V}3$) with thick traces ($\ge 0.5\text{mm}$) to handle higher current paths safely. Enclose the entire layout with a dedicated, continuous bottom layer copper ground plane (`B.Cu`) to suppress inductive switching noise from the motor. Run the KiCad Design Rules Checker (DRC) to fix all board boundary conflicts, edge clearances, and short circuits.
+* **Feasibility Check:** Completed. Ground plane short-circuit errors resolved via a proper Filled Zone polygon.
+
+#### Phase 3: Hardware Bring-Up (Cold & Warm Testing)
+* **Action Items:** Perform a "Cold Test" using a multimeter in continuity mode immediately after soldering to ensure 0-ohm paths exist only on valid nets (verifying no power-to-ground shorts). Perform a "Warm Test" by applying power to the unpopulated board to measure and verify stable $+5.0\text{V}$ and $+3.3\text{V}$ outputs on the component sockets.
+* **Feasibility Check:** Planned immediately upon physical board delivery to prevent damaging expensive processing ICs.
+
+#### Phase 4: Embedded Firmware & Algorithmic Calibration
+* **Action Items:** Write the basic peripheral drivers to confirm stable I2C bus communications with the IMU and OLED display. Implement the complementary filter algorithm to blend accelerometer and gyroscope data into a clean thigh-angle estimation stream. Build the 4-stage software state machine (Standing, Descent, Bottom/Valid, Ascent) and fine-tune the calibration thresholds during live test squat sets.
+* **Feasibility Check:** Highly achievable; development will utilize a modular codebase to easily isolate and debug algorithmic filtering lag.
+
+### Target Audience
+Because RepSense is a specialized personal development project, the target audience is unique:
+* **Primary User (Self):** A strength-training athlete looking for an objective, automated, real-time depth cue during heavy barbell squats without needing a training partner or video review.
+* **Secondary Audience (Open Source/Engineering Community):** Hardware hobbyists, embedded systems developers, and powerlifters on GitHub who want to replicate, modify, or scale the wearable platform for their own training style or research.
+
+### Measurement
+Progress and success will be tracked quantitatively using the following baselines:
+* **Hardware Manufacturing Readiness:** Achieve a layout state with **0 errors and 0 warnings** under the KiCad Design Rules Checker (DRC).
+* **Firmware Latency Baseline:** The time delay between crossing the physical squat depth angle and the haptic motor pulsing must be **$\le 50\text{ms}$** to ensure the lifter receives the cue at the exact bottom of the rep.
+* **Algorithmic Accuracy:** The complementary filter must maintain an angle estimation drift of **$< 2^{\circ}$** over a standard 5-repetition working set when compared against visual video analysis benchmarks.
